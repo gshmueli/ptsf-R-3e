@@ -1,0 +1,23 @@
+###########
+# Packages - the order of installing the packages is very important
+###########
+              
+install.packages("here", dependencies = TRUE)          # 1.0.1
+install.packages("rlang", dependencies = TRUE)         # 1.1.0  
+install.packages("fabletools",dependencies=TRUE)       # 0.3.3
+install.packages("fable")         # 0.3.3
+install.packages("tsibble")       # 1.1.3
+install.packages("feasts")        # 0.3.1
+install.packages("slider")        # 0.3.0
+install.packages("dplyr")         # 1.1.1
+install.packages("tidyr")         # 1.3.0
+install.packages("lubridate")     # 1.9.2
+install.packages("ggplot2")       # 3.4.2
+install.packages("gridExtra")     # 2.3
+install.packages("readr")         # 2.1.4
+install.packages("scales")        # 1.21.1
+install.packages("stringr")      # 1.5.0
+# Install reticulate, keras, and tersorflow only if you plan to use deep learning (Chap 9)
+#install.packages("reticulate", dependencies = TRUE)          # 1.30
+#install.packages("keras", dependencies = TRUE)               # 2.11.1
+#install.packages("tensorflow", dependencies = TRUE)          # 2.11.0
