@@ -4,12 +4,12 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month)) ) |>
   as_tsibble(index = Month)
 
 
-train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
-valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
+valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
 # Naive model
 ridership.naive <- train.ridership |>
@@ -27,7 +27,7 @@ lengthValidPeriod <- dim(valid.ridership)[1]
 error <- rep(NA, lengthValidPeriod -1 + stepAhead)
 
 for(i in 1:lengthValidPeriod ){
-  train.ridership.l <- ridership |> slice(., 1:(lengthTrainPeriod-1+i) ) 
+  train.ridership.l <- ridership |> slice(., 1:(lengthTrainPeriod-1+i)) 
 
   ridership.naive.l <- train.ridership.l |>
                            model(naive_model = NAIVE(Ridership))
@@ -41,24 +41,22 @@ error <- unlist(error)
 
 ridership.naive.pred.l <- rep(NA, dim(valid.ridership)[1])
 for(i in 1:lengthValidPeriod ){
-  train.ridership.l <- ridership |> slice(  1:(lengthTrainPeriod-1+i) ) 
+  train.ridership.l <- ridership |> slice(1:(lengthTrainPeriod-1+i)) 
  
   ridership.naive.l <- train.ridership.l |>
     model(naive_model = NAIVE(Ridership))
   
-  temp <-  ridership.naive.l |> 
+  temp <- ridership.naive.l |> 
     forecast(h = stepAhead) 
   ridership.naive.pred.l[i] <- temp$.mean
 }
-
-
 
 predict.df <- bind_cols(valid.ridership, ridership.naive.pred.l)
 names(predict.df)[3] <- "predict"
 
 # Figure 3.8
 
-fc <- ridership.naive.pred  |>
+p <- ridership.naive.pred  |>
   autoplot(ridership, level=NULL, linetype = "dashed", size=1.25) +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
   geom_line(aes(Month, predict), predict.df, linetype = "dashed", size=0.8, color = "coral1")+
@@ -75,18 +73,11 @@ fc <- ridership.naive.pred  |>
                arrow = arrow(length = unit(0.25, "cm"), ends = "both"), color="grey55")+  # arrow Training
   annotate(geom="text", x=yearmonth("1996-Aug"), y=2540, label="Training", color="grey37")
 
-
-
-
-pdf("Plots/AmtrakFig_3_8_3e.pdf",height=4,width=6)
-fc 
-dev.off()
-
+p
 
 
 #############
 # Table 3.3 
-
 
 lengthTrainPeriod <-dim(train.ridership)[1]
 rollingWindowSize <- 1
@@ -99,8 +90,6 @@ fc <- ridership_tr |>
   forecast(h=1)
 
 fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE)
-
-
 
 ###################
 
@@ -120,7 +109,7 @@ error       <- rep(NA, lengthValidPeriod - roll.forward)
 prec.actual <- rep(NA, lengthValidPeriod  - roll.forward)
 
 
-for(i in 1:(lengthValidPeriod - roll.forward + step.ahead) ){
+for(i in 1:(lengthValidPeriod - roll.forward + step.ahead)){
   train.ridership.l <- ridership |> slice( 1:(lengthTrainPeriod-1+i) ) 
   
   ridership.naive.l <- train.ridership.l |>
@@ -131,7 +120,7 @@ for(i in 1:(lengthValidPeriod - roll.forward + step.ahead) ){
                                slice(roll.forward:(roll.forward+step.ahead-1)) # keep forecast for 1 obs from roll.forward location
   
   error[i] <- valid.ridership$Ridership[roll.forward + i - 1] - ridership.naive.pred.l$.mean
-  prec.actual[i] <- error[i] /  valid.ridership$Ridership[roll.forward + i - 1]
+  prec.actual[i] <- error[i] / valid.ridership$Ridership[roll.forward + i - 1]
 }
 
 # augment(ridership.naive.l)
@@ -141,8 +130,6 @@ MAE <- mean(abs(error))
 RMSE <- sqrt(mean(abs(error^2)))
 MAPE <- mean(abs(prec.actual))
 c(MAE,RMSE, MAPE)
-
-
 
 
 ############
@@ -168,8 +155,8 @@ fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE)
 #############
 # Fixed partitioning overall
 
-train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
-valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
+valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
 fit <- train.ridership |>
   model(naive_model = NAIVE(Ridership))
