@@ -1,6 +1,6 @@
 ################
 # Code to create Fig.7.7
-# Forecasting Bike Rentals (TSLM with external predictors)
+# Forecasting Bike Rentals: TSLM with external predictors (Example 3)
 ###################
 
 bike <- read.csv("Data/BikeSharingDaily.csv") |>
