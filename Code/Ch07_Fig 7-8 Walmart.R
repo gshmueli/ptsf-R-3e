@@ -1,9 +1,7 @@
 ################
-# Code to create Fig. 7.7_one_pair
-# WalmArt Sales - use of automated ARIMA
-## Example 4: Adding IsHoliday -- Section 7.4
+# Code to create Fig. 7.8
+# Walmart Sales - ARIMA with external information (Example 4)
 ###################
-
 
 one.pair <- read.csv("Data/Walmart_One_Pair.csv")
 
@@ -28,9 +26,6 @@ fit |> select(SAR1) |> report()
 fit |> select(AR2.IsHoliday) |> report()
 #fit |> select(SAR1.IsHoliday) |> report()
 
-
-
-
 # Forcasting
 fc <- fit |>
   forecast(one.pair.valid)
@@ -38,21 +33,6 @@ fc <- fit |>
 # Performance measures
 accuracy(fit) # training
 accuracy(fc, one.pair.valid) # validation
-
-
-
-##new_ext_variable_values <- one.pair.valid |> select(Date, IsHoliday) 
-
-##fc <- train.aut.arima |>
-##   forecast(h = dim(one.pair.valid)[1], new_data = new_ext_variable_values)
-
-## Performance measures
-##accuracy(train.aut.arima.ext) # training
-##accuracy(fc, one.pair.valid) # validation
-
-
-
-
 
 # Compute validation forecast errors
 # add them to new fc2
@@ -62,17 +42,14 @@ fc2 <- fc |>
   select(.model, Week, fc.error)
 
 # Plot 1: actual and forecasts
-p3 <- autoplot(one.pair, Weekly_Sales) +
+p1 <- autoplot(one.pair, Weekly_Sales) +
   autolayer(fitted(fit), .fitted, alpha = 0.7) +
   autolayer(fc, .mean, linetype = "dashed", level = NULL) +
   labs(title = "Sales and Forecasts", x = "Week", y = "Sales")
 
 # Plot 2: errors
-p4 <- autoplot(fc2, fc.error, linetype = "dashed") +
+p2 <- autoplot(fc2, fc.error, linetype = "dashed") +
   autolayer(resid(fit), .resid, alpha = 0.7) +
   labs(title = "Errors", x = "Week", y = "Error")
 
-
-pdf("Plots/OnePairFig_7_7_one_pair_3e.pdf", height=6.5,width=8)
-grid.arrange(p3, p4 , nrow = 2)
-dev.off()
+grid.arrange(p1, p2 , nrow = 2)
