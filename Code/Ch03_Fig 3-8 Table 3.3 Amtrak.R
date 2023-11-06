@@ -4,9 +4,8 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character(Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
-
 
 train.ridership <- ridership |> filter_index(~ "2001 Mar") 
 valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
@@ -15,9 +14,9 @@ valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 ridership.naive <- train.ridership |>
   model(naive_model = NAIVE(Ridership))
 
-ridership.naive.pred <- ridership.naive |> forecast(h = dim(valid.ridership)[1])
+ridership.naive.pred <- ridership.naive |> forecast(valid.ridership)
 
-# Monthly roll-foreword validation period.
+# Monthly roll-foreword validation period
 ridership.naive <- train.ridership |>
   model(roll_model = NAIVE(Ridership))
 
