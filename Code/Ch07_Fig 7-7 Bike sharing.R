@@ -1,8 +1,7 @@
 ################
-# Code to create Fig.7.7_LR_Bike
-# Forecasting Bike Rentals (TSLM with external predictors
+# Code to create Fig.7.7
+# Forecasting Bike Rentals (TSLM with external predictors)
 ###################
-
 
 bike <- read.csv("Data/BikeSharingDaily.csv") |>
   mutate(
@@ -55,7 +54,4 @@ p2 <- autoplot(fc2, fc.error, linetype = "dashed") +
   autolayer(resid(fit), .resid) +
   labs(title = "Errors", y = "Error")
 
-#pdf("Fig_7_6_3e_Bike.pdf", height=6.5,width=8)
 grid.arrange(p1, p2 , nrow = 2)
-#dev.off()
-
