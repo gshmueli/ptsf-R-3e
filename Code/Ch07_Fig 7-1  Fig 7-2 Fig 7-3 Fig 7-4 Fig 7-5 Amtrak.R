@@ -5,47 +5,38 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  dplyr::mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  dplyr::mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
-ridership.24.ts <- ridership |> filter_index( ~ "1992 Dec") 
+ridership.24 <- ridership |> filter_index(~ "1992 Dec") 
 
-ridership.24.ts <- ridership.24.ts |> 
+ridership.24 <- ridership.24 |> 
                     mutate(lag1Ridership = lag(Ridership, n=1),
                            lag2Ridership = lag(Ridership, n=2))
 # Figure 7.1
-View(ridership.24.ts)
+View(ridership.24)
 
 
 ################
 # Code to create Figure 7.2
 
-pdf("Plots/AmtrakFig_7_2_3e.pdf",height=5.5,width=8)
-
-ridership.24.ts |> ACF(Ridership, lag_max = 18) |>
+ridership.24 |> ACF(Ridership, lag_max = 18) |>
   autoplot() + 
   xlab("Lag") + 
   scale_x_continuous(breaks = seq(0, 18, by = 1)) 
 
-dev.off()
-
-
 ###############
 # Code to create Figure 7.3
 
- train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
 
 # Seasonality & quadratic trend
 train.lm.trend.season <- train.ridership |> 
-  model(TSLM( Ridership ~ trend() + I(trend()^2) + season()))
-
-pdf("Plots/AmtrakFig_7_3_3e.pdf",height=5.5,width=8)
+  model(TSLM(Ridership ~ trend() + I(trend()^2) + season()))
 
 train.lm.trend.season |> residuals() |> ACF(.resid, lag_max = 18) |> 
   autoplot() + 
   xlab("Lag")
-
-dev.off()
 
 ###############
 # Code to create Figure 7.4
@@ -55,13 +46,12 @@ train.lm.trend.season.resid <- train.ridership |>
   residuals() |>
   select(-.model) 
 
-
 train.res.arima <- train.lm.trend.season.resid |> 
-  model(ARIMA( .resid ~ 1 + pdq(1,0,0) ))
+  model(ARIMA(.resid ~ 1 + pdq(1,0,0) ))
 
 train.res.arima |> forecast(h=1)
 
-train.res.arima.fitted <-   fitted.values(train.res.arima)
+train.res.arima.fitted <- fitted.values(train.res.arima)
 
 p <- train.lm.trend.season.resid  |>
   autoplot() + 
@@ -79,23 +69,15 @@ p <- train.lm.trend.season.resid  |>
   annotate(geom="text", x=yearmonth("1995-Aug"), y=240, label="Training", color="grey37")   +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") 
 
-
-pdf("Plots/AmtrakFig_7_4_3e.pdf",height=5.5,width=8)
 p
-dev.off()
 
 report(train.res.arima)
 
-
 ###############
 # Code to create Figure 7.5
-pdf("Plots/AmtrakFig_7_5_3e.pdf",height=5.5,width=8)
 
 train.res.arima |> residuals() |> ACF(.resid, lag_max = 36) |> 
   autoplot() + xlab("Lag")
-
-dev.off()
-
 
 
 
