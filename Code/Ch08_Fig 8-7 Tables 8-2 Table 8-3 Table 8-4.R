@@ -1,36 +1,42 @@
 
 ########################
-# Chap 9 deep learning: Code to create Figure 9.7 and Tables 9.2 and 9.3
+# Chap 9 deep learning: Code for creating Figure 8.7 and Tables 8.2, 8.3, 8.4, 8.5
 ########################
-## Deep Learning for Forecasting
-## Series with Seasonality (No Trend)
+
+# load required packages for deep learning
+library(reticulate)
+library(keras)
+# You can confirm that the installation succeeded with:
+install_keras(envname = "r-reticulate")
+library(tensorflow)
+tf$constant("Hello Tensorflow!")
 
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
-### Prepare training data for forecasting a series with LSTM ### 
+ridership <- Amtrak.data |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
+  as_tsibble(index = Month)
 
-# create time-series objects (from stats package)
-ridership.ts <- ts(Amtrak.data$Ridership, start=c(1991, 1), freq=12)
+nValid <- 36
+nTrain <- dim(ridership)[1] - nValid
+train <- ridership |> filter(row_number() <= nTrain)
+valid <- ridership |> filter(row_number() > nTrain)
 
-# separate to training and testing datasets
-nTest <- 36
-nTrain <- length(ridership.ts) - nTest
-train.ts <- window(ridership.ts, start=c(1991, 1), end=c(1991, nTrain))
-test.ts <- window(ridership.ts, start=c(1991, nTrain + 1),
-                  end=c(1991, nTrain + nTest))
+# Normalization
+minmax <- range(train$Ridership, na.rm = TRUE)
+train <- train |>
+  mutate(Normalized_Ridership = (Ridership - minmax[1]) / (minmax[2] - minmax[1]))
 
-# define function for normalization of training set and it's inverse
-minmax <- range(train.ts)
-normalize_ts <- function(x) (x - minmax[1]) / (minmax[2] - minmax[1])
-inv_normalize_ts <- function(x) (minmax[2] - minmax[1]) * x + minmax[1]
-norm_train.ts <- normalize_ts(train.ts)
+# Function to inverse the normalization
+inv_normalize <- function(x) (minmax[2] - minmax[1]) * x + minmax[1]
 
-# convert timeseries into sequence of subseries of length (ninput + noutput)
+# Creating sequences for LSTM
 ninput <- 12
 noutput <- 1
-nSubsequences <- length(norm_train.ts) - (ninput + noutput) + 1
-getSubsequence <- function(i) norm_train.ts[i:(i - 1 + ninput+noutput)]
+
+nSubsequences <- nrow(train) - (ninput + noutput) + 1
+getSubsequence <- function(i) train$Normalized_Ridership[i:(i - 1 + ninput+noutput)]
 subsequences <- t(sapply(1:nSubsequences, getSubsequence))
 
 # split subsequences into input (x) and output (y) and convert both to arrays
@@ -41,49 +47,35 @@ y.train <- array(data=y.train, dim=c(nrow(x.train), noutput, 1))
 dim(x.train); dim(y.train)
 
 
-### Define LSTM model for forecasting ### 
 
-# load required packages
-# Keras and TensorFlow require a Python conda environment with these packages installed
+# Now start using deep learning
 
-library(reticulate)
-library(devtools)
-library(keras)
-
-#You can confirm that the installation succeeded with:
-install_keras(envname = "r-reticulate")
-
-library(tensorflow)
-tf$constant("Hello Tensorflow!")
-
-# Seed Random Numbers with the TensorFlow Backend
+# Random seed numbers with the TensorFlow Backend
 set.seed(123)      # R
 py_set_seed(1234)  # Python and numpy
 set_random_seed(2) # Tensorflow
 
-### Fit the NNT
-
-lstm_model <- keras_model_sequential() %>%
+lstm_model <- keras_model_sequential() |>
   layer_lstm(units = 50, # size of the layer
              batch_input_shape = c(1, ninput, 1), # batch size, timesteps, features
              dropout = 0.01,
              recurrent_dropout = 0.01,
              return_sequences = TRUE,
-             stateful = TRUE) %>%
+             stateful = TRUE) |>
   layer_lstm(units = 50,
              dropout = 0.01,
              recurrent_dropout = 0.01,
              return_sequences = TRUE,
-             stateful = TRUE) %>%
-  layer_flatten() %>%
+             stateful = TRUE) |>
+  layer_flatten() |>
   layer_dense(units = 1)
+
 summary(lstm_model)
 
-lstm_model %>%
+lstm_model |>
   compile(loss = 'mae', optimizer = 'adam', metrics = 'mse')
 
-
-lstm_model %>% fit(
+lstm_model |> fit(
   x = x.train,
   y = y.train,
   batch_size = 1,
@@ -92,196 +84,62 @@ lstm_model %>% fit(
   shuffle = TRUE
 )
 
+# Forecasting one month ahead with sliding window 
+window <- as.numeric(train$Normalized_Ridership[(nTrain-12):nTrain])
+forecast <- numeric(nValid)
 
-lstm_model %>% save_model_weights_tf("lstm-model.ckpt")
-
-lstm_model %>% load_model_weights_tf("lstm-model.ckpt")
-
-
-
-# code for forecasting one month ahead with sliding window
-
-forecast.ts <- c()
-window <- norm_train.ts[(nTrain-12):nTrain]
-for (i in 1:36) {
-  x <- array(data=window, dim=c(1, ninput, 1))
-  pred <- predict(lstm_model, x, batch_size=1)
-  window <- c(window[2:length(window)], pred[1])
-  forecast.ts <- c(forecast.ts, pred[1])
+for (i in 1:nValid) {
+  x <- array(data = window, dim = c(1, ninput, 1))
+  pred <- predict(lstm_model, x, batch_size = 1)
+  window <- c(window[-1], pred[1])  # Move the window forward by discarding the first element and appending the prediction
+  forecast[i] <- pred[1]
 }
 
-forecast.ts <- inv_normalize_ts(forecast.ts)
-forecast.ts <- ts(forecast.ts, start=c(1991, 1 + nTrain), freq=12)
+# Inverse the normalization
+forecast <- inv_normalize(forecast)
 
-fitted <- predict(lstm_model, x.train, batch_size=1)
-fitted.ts <- ts(inv_normalize_ts(fitted), start=c(1991, 1 + ninput), freq=12)
-
-# to compute performance measures for ts object, install and load forecast library
-library(forecast)
-forecast::accuracy(fitted.ts, ridership.ts)
-forecast::accuracy(forecast.ts, ridership.ts)
-detach("package:forecast", unload = TRUE)
-
-delta <- 1/12
-date_t <- time(train.ts)[1]
-date_th <- time(test.ts)[1] - delta
-date_hf <- tail(time(test.ts), 1) + delta
-
-# time plot of series with LSTM fitted values and forecasts
-
-pdf("Plots/AmtrakFig_9_7_3e.pdf",height=4,width=6)
-autoplot(train.ts, xlab="Time", ylab="Ridership", color= "black") +
-  autolayer(test.ts, color="black") +
-  autolayer(fitted.ts, color= "blue1", size=0.75) +
-  autolayer(forecast.ts, color= "blue1", size=0.75 , linetype= "dashed") +
-  scale_x_continuous(n.breaks=10) +
-  geom_text(aes(x=(date_t+date_th)/2, y= 2250), label='Training', color="grey37")+  
-  geom_text(aes(x=(date_th+date_hf)/2, y=2250), label='Validation', color="grey37") +
-  geom_segment(aes(x=date_t, xend=date_th-delta, y= 2225, yend= 2225), color="darkgrey") +
-  geom_segment(aes(x=date_th+delta, xend=date_hf-delta, y= 2225, yend= 2225), color="darkgrey")+
-  geom_vline(xintercept=date_th, color="darkgrey")
-dev.off() 
-=======
-########################
-# Chap 9 deep learning: Code to create Figure 9.7 and Tables 9.2 and 9.3
-########################
-## Deep Learning for Forecasting
-## Series with Seasonality (No Trend)
-
-
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
-
-### Prepare training data for forecasting a series with LSTM ### 
-
-# create time-series objects (from stats package)
-ridership.ts <- ts(Amtrak.data$Ridership, start=c(1991, 1), freq=12)
-
-# separate to training and testing datasets
-nTest <- 36
-nTrain <- length(ridership.ts) - nTest
-train.ts <- window(ridership.ts, start=c(1991, 1), end=c(1991, nTrain))
-test.ts <- window(ridership.ts, start=c(1991, nTrain + 1),
-                  end=c(1991, nTrain + nTest))
-
-# define function for normalization of training set and it's inverse
-minmax <- range(train.ts)
-normalize_ts <- function(x) (x - minmax[1]) / (minmax[2] - minmax[1])
-inv_normalize_ts <- function(x) (minmax[2] - minmax[1]) * x + minmax[1]
-norm_train.ts <- normalize_ts(train.ts)
-
-# convert timeseries into sequence of subseries of length (ninput + noutput)
-ninput <- 12
-noutput <- 1
-nSubsequences <- length(norm_train.ts) - (ninput + noutput) + 1
-getSubsequence <- function(i) norm_train.ts[i:(i - 1 + ninput+noutput)]
-subsequences <- t(sapply(1:nSubsequences, getSubsequence))
-
-# split subsequences into input (x) and output (y) and convert both to arrays
-x.train <- subsequences[, 1:ninput]
-y.train <- subsequences[, (ninput+1):(ninput+noutput)]
-x.train <- array(data=x.train, dim=c(nrow(x.train), ninput, 1))
-y.train <- array(data=y.train, dim=c(nrow(x.train), noutput, 1))
-dim(x.train); dim(y.train)
-
-
-### Define LSTM model for forecasting ### 
-
-# load required packages
-# Keras and TensorFlow require a Python conda environment with these packages installed
-
-library(reticulate)
-library(devtools)
-library(keras)
-
-#You can confirm that the installation succeeded with:
-install_keras(envname = "r-reticulate")
-
-library(tensorflow)
-tf$constant("Hello Tensorflow!")
-
-# Seed Random Numbers with the TensorFlow Backend
-set.seed(123)      # R
-py_set_seed(1234)  # Python and numpy
-set_random_seed(2) # Tensorflow
-
-### Fit the NNT
-
-lstm_model <- keras_model_sequential() %>%
-  layer_lstm(units = 50, # size of the layer
-             batch_input_shape = c(1, ninput, 1), # batch size, timesteps, features
-             dropout = 0.01,
-             recurrent_dropout = 0.01,
-             return_sequences = TRUE,
-             stateful = TRUE) %>%
-  layer_lstm(units = 50,
-             dropout = 0.01,
-             recurrent_dropout = 0.01,
-             return_sequences = TRUE,
-             stateful = TRUE) %>%
-  layer_flatten() %>%
-  layer_dense(units = 1)
-summary(lstm_model)
-
-lstm_model %>%
-  compile(loss = 'mae', optimizer = 'adam', metrics = 'mse')
-
-
-lstm_model %>% fit(
-  x = x.train,
-  y = y.train,
-  batch_size = 1,
-  epochs = 400,
-  verbose = 1,
-  shuffle = TRUE
+# Convert to tsibble
+forecast_tbl <- tsibble(
+  Forecast = forecast,
+  Month = yearmonth(seq(as.Date("1991/01/01") + months(nTrain), by = "1 month", length.out = length(forecast))),
+  index = Month
+)
+# For fitted values
+fitted <- predict(lstm_model, x.train, batch_size = 1)
+fitted_values <- inv_normalize(as.vector(fitted))
+fitted_tbl <- tsibble(
+  Fitted = fitted_values,
+  Month = yearmonth(seq(as.Date("1991/01/01") + months(ninput), by = "1 month", length.out=length(fitted_values))),
+  index = Month
 )
 
-
-lstm_model %>% save_model_weights_tf("lstm-model.ckpt")
-
-lstm_model %>% load_model_weights_tf("lstm-model.ckpt")
-
-
-
-# code for forecasting one month ahead with sliding window
-
-forecast.ts <- c()
-window <- norm_train.ts[(nTrain-12):nTrain]
-for (i in 1:36) {
-  x <- array(data=window, dim=c(1, ninput, 1))
-  pred <- predict(lstm_model, x, batch_size=1)
-  window <- c(window[2:length(window)], pred[1])
-  forecast.ts <- c(forecast.ts, pred[1])
-}
-
-forecast.ts <- inv_normalize_ts(forecast.ts)
-forecast.ts <- ts(forecast.ts, start=c(1991, 1 + nTrain), freq=12)
-
-fitted <- predict(lstm_model, x.train, batch_size=1)
-fitted.ts <- ts(inv_normalize_ts(fitted), start=c(1991, 1 + ninput), freq=12)
-
-# to compute performance measures for ts object, install and load forecast library
-library(forecast)
-forecast::accuracy(fitted.ts, ridership.ts)
-forecast::accuracy(forecast.ts, ridership.ts)
-detach("package:forecast", unload = TRUE)
-
-delta <- 1/12
-date_t <- time(train.ts)[1]
-date_th <- time(test.ts)[1] - delta
-date_hf <- tail(time(test.ts), 1) + delta
-
-# time plot of series with LSTM fitted values and forecasts
-
-pdf("Plots/AmtrakFig_9_7_3e.pdf",height=4,width=6)
-autoplot(train.ts, xlab="Time", ylab="Ridership", color= "black") +
-  autolayer(test.ts, color="black") +
-  autolayer(fitted.ts, color= "blue1", size=0.75) +
-  autolayer(forecast.ts, color= "blue1", size=0.75 , linetype= "dashed") +
-  scale_x_continuous(n.breaks=10) +
-  geom_text(aes(x=(date_t+date_th)/2, y= 2250), label='Training', color="grey37")+  
-  geom_text(aes(x=(date_th+date_hf)/2, y=2250), label='Validation', color="grey37") +
-  geom_segment(aes(x=date_t, xend=date_th-delta, y= 2225, yend= 2225), color="darkgrey") +
-  geom_segment(aes(x=date_th+delta, xend=date_hf-delta, y= 2225, yend= 2225), color="darkgrey")+
-  geom_vline(xintercept=date_th, color="darkgrey")
+# Plot 
+pdf("AmtrakFig_9_7_3e.pdf",height=4,width=6)
+  autoplot(ridership, Ridership) +
+    autolayer(fitted_tbl, Fitted, color = "blue") +
+    autolayer(forecast_tbl, Forecast, linetype = "dashed", color = "blue") +
+    scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
+    geom_vline(xintercept= as.numeric(as.Date(yearmonth("2001-April"))), linetype="solid", color = "grey55", size=0.6)+
+    geom_segment(aes(x = yearmonth("2001-May"), y = 2250, xend = yearmonth("2004-Mar"), yend = 2250),
+                 arrow = arrow(length = unit(0.25, "cm"), ends = "both") , size = 0.3, color = "grey55")+ 
+    annotate(geom = "text", x = yearmonth("2002-Aug"), y = 2280, label = "Validation", color = "grey37") +
+    geom_segment(aes(x = yearmonth("1991-Jan"), y = 2250, xend = yearmonth("2001-Mar"), yend = 2250),
+                 arrow = arrow(length = unit(0.25, "cm"), ends = "both"), size = 0.3, color = "grey55")+ 
+    annotate(geom="text", x = yearmonth("1996-Aug"), y = 2280, label = "Training", color = "grey37")
 dev.off() 
->>>>>>> .merge_file_dqp69d
+  
+
+# Accuracy measures (cannot use fable because do not have a fable model)
+train_all <- train |>
+  left_join(fitted_tbl, by = "Month") |>
+  mutate(error = Ridership - Fitted)
+
+valid_all <- valid |>
+  left_join(forecast_tbl, by = "Month") |>
+  mutate(forecast_error = Ridership - Forecast)
+
+
+library(forecast)
+forecast::accuracy(train_all$Fitted, train_all$Ridership)
+forecast::accuracy(forecast_tbl$Forecast, valid$Ridership)
+detach("package:forecast", unload = TRUE) # to remove forecast package
