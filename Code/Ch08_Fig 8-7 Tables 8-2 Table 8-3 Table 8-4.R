@@ -3,15 +3,6 @@
 # Chap 9 deep learning: Code for creating Figure 8.7 and Tables 8.2, 8.3, 8.4, 8.5
 ########################
 
-# load required packages for deep learning
-library(reticulate)
-library(keras)
-# You can confirm that the installation succeeded with:
-install_keras(envname = "r-reticulate")
-library(tensorflow)
-tf$constant("Hello Tensorflow!")
-
-
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
@@ -22,6 +13,8 @@ nValid <- 36
 nTrain <- dim(ridership)[1] - nValid
 train <- ridership |> filter(row_number() <= nTrain)
 valid <- ridership |> filter(row_number() > nTrain)
+
+# Table 8.2: Step 1: Preparing Amtrak training data for forecasting with LSTM
 
 # Normalization
 minmax <- range(train$Ridership, na.rm = TRUE)
@@ -48,7 +41,15 @@ dim(x.train); dim(y.train)
 
 
 
-# Now start using deep learning
+# Table 8.3: Step 2: Defining an LSTM model for forecasting
+# load required packages for deep learning
+library(reticulate)
+library(keras)
+# You can confirm that the installation succeeded with:
+install_keras(envname = "r-reticulate")
+library(tensorflow)
+tf$constant("Hello Tensorflow!")
+
 
 # Random seed numbers with the TensorFlow Backend
 set.seed(123)      # R
@@ -75,6 +76,8 @@ summary(lstm_model)
 lstm_model |>
   compile(loss = 'mae', optimizer = 'adam', metrics = 'mse')
 
+# Table 8.4: Step 3: Applying LSTM model to Amtrak data
+
 lstm_model |> fit(
   x = x.train,
   y = y.train,
@@ -84,7 +87,7 @@ lstm_model |> fit(
   shuffle = TRUE
 )
 
-# Forecasting one month ahead with sliding window 
+# Step 4: Forecasting one month ahead with sliding window 
 window <- as.numeric(train$Normalized_Ridership[(nTrain-12):nTrain])
 forecast <- numeric(nValid)
 
@@ -129,6 +132,8 @@ pdf("AmtrakFig_9_7_3e.pdf",height=4,width=6)
 dev.off() 
   
 
+# Table 8.5: Step 5: Computing performance measures for LSTM model
+
 # Accuracy measures (cannot use fable because do not have a fable model)
 train_all <- train |>
   left_join(fitted_tbl, by = "Month") |>
@@ -137,7 +142,6 @@ train_all <- train |>
 valid_all <- valid |>
   left_join(forecast_tbl, by = "Month") |>
   mutate(forecast_error = Ridership - Forecast)
-
 
 library(forecast)
 forecast::accuracy(train_all$Fitted, train_all$Ridership)
