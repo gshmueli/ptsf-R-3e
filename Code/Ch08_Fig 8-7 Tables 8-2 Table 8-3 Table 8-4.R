@@ -1,4 +1,4 @@
-<<<<<<< .merge_file_99VejN
+
 ########################
 # Chap 9 deep learning: Code to create Figure 9.7 and Tables 9.2 and 9.3
 ########################
