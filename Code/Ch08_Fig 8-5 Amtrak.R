@@ -11,36 +11,36 @@ train.ridership <- ridership |> filter_index(~ "2001 Mar")
 valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
 set.seed(201)
-ridership.nnetar <- train.ridership |>
-  model(nn = NNETAR(Ridership ~ AR(p = 11, P = 1, period = 12), n_nodes = 7, n_networks = 20))
-report(ridership.nnetar)
-pred.values.nnetar <- fitted.values(ridership.nnetar)
-View(pred.values.nnetar)
+fit.nnetar <- train.ridership |> 
+  model(nn = NNETAR(Ridership ~ AR(p = 11, P = 1, period = 12),
+                    n_nodes = 7, n_networks = 20))
 
-fc <- ridership.nnetar |> forecast(h = 36 , times = 100)
+report(fit.nnetar)
 
-ridership |>
-autoplot(Ridership) +
-geom_line(aes(y=.mean), data = fc, linetype = "dashed", size=1, colour="blue1")+
-geom_line(aes(y=.fitted), data = pred.values.nnetar, size=1, colour="blue1")+
-xlab("Time") + ylab("Ridership") +
-scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
+fc <- fit.nnetar |> forecast(valid.ridership, times = 0)
+
+ridership |> 
+  autoplot(Ridership) +
+  geom_line(aes(y=.mean), data = fc, linetype = "dashed", size = 1, colour="blue1") +
+  geom_line(aes(y=.fitted), data = augment(fit.nnetar), alpha = 0.5, size = 1, colour="blue1") +
+  xlab("Month") + ylab("Ridership")  + 
+  scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
 
 dplyr::bind_rows(
-accuracy(ridership.nnetar),
-accuracy(fc, as_tsibble(ridership))
+  accuracy(fit.nnetar),
+  accuracy(fc, valid.ridership)
 )
 
 # RMSE in the validation period
-accuracy(fc, as_tsibble(ridership))$RMSE
+accuracy(fc, valid.ridership)$RMSE
 
 #### Figure with training/validation arrows and marks
 
-pdf("Plots/AmtrakFig_9_5_3e.pdf",height=4,width=6)
+pdf("Plots/AmtrakFig_9_5_3e.pdf", height=4, width=6)
 ridership |>
 autoplot(Ridership) +
-geom_line(aes(y=.mean), data = fc, linetype = "dashed", size=1, colour="blue1")+
-geom_line(aes(y=.fitted), data = pred.values.nnetar, size=1, colour="blue1")+
+geom_line(aes(y=.mean), data = fc, linetype = "dashed", size = 1, colour = "blue1")+
+geom_line(aes(y=.fitted), data = augment(fit.nnetar), size = 1, alpha = 0.5, colour = "blue1")+
 xlab("Time") + ylab("Ridership") +
 scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
   geom_vline(xintercept = as.numeric(as.Date(yearmonth("2001-April"))), linetype="solid", color = "grey55", size = 0.6) +
@@ -58,9 +58,9 @@ set.seed(201)
 ridership.optimal <- train.ridership |>
   model(nn = NNETAR(Ridership))
 
-fc.optimal <- ridership.optimal |> forecast(h = 36, times = 100)
+fc.optimal <- ridership.optimal |> forecast(h = 36, times = 0)
 
 dplyr::bind_rows(
   accuracy(ridership.optimal),
-  accuracy(fc.optimal, as_tsibble(ridership))
+  accuracy(fc.optimal, valid.ridership)
 )
