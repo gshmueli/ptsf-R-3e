@@ -78,11 +78,10 @@ p
 #############
 # Table 3.3 
 
-lengthTrainPeriod <-dim(train.ridership)[1]
 rollingWindowSize <- 1
 ridership_tr <- ridership |>
   slice(1:(n()-rollingWindowSize)) |>
-  stretch_tsibble(.init=lengthTrainPeriod ,.step= 1)
+  stretch_tsibble(.init = NROW(train.ridership, .step= 1)
 
 fc <- ridership_tr |>
   model(naive_model = NAIVE(Ridership)) |>
