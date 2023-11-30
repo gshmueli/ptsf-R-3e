@@ -17,7 +17,7 @@ valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
 ridership.naive <- train.ridership |>
   model(naive_model = NAIVE(Ridership))
 
-ridership.naive.pred <- ridership.naive |> forecast(h = dim(valid.ridership)[1])
+ridership.naive.pred <- ridership.naive |> forecast(valid.ridership)
 
 accuracy(ridership.naive.pred, ridership) |> select(MAE, RMSE, MAPE)
 
@@ -35,24 +35,19 @@ accuracy(ridership.snaive.pred, ridership) |> select(MAE, RMSE, MAPE)
 #############
 # Table 3.6 (clever way of calculating values for 1-35 steps ahead)
 
-lengthTrainPeriod <-dim(train.ridership)[1]
+
 rollingWindowSize <- 1
 
 ridership_tr <- ridership |> 
   slice(1:(n()-rollingWindowSize)) |>
-  stretch_tsibble(.init=lengthTrainPeriod ,.step= 1)
+  stretch_tsibble(.init = NROW(train.ridership), .step= 1)
 
 # Naive
 fc <- ridership_tr |>
-  model(naive_model = NAIVE(Ridership)) |>
+  model(
+    naive_model = NAIVE(Ridership),
+    snaive_model = SNAIVE(Ridership)
+  ) |>
   forecast(h=1) 
 
-fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE ) 
-
-# sNaive
-fc <- ridership_tr |>
-  model(naive_model = SNAIVE(Ridership)) |>
-  forecast(h=1) 
-
-fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE ) 
-
+fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE) 
