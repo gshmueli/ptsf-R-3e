@@ -1,4 +1,4 @@
-# Neural net
+# Neural net for Melbourne rainfall (binary series)
 set.seed(201)
 fit <- train.rain |>
   model(
