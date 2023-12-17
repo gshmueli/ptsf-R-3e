@@ -1,4 +1,4 @@
-### Table 9.1
+### Table 9.2
 
 # create columns for trend and lag
 rain <- rain |>
