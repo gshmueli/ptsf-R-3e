@@ -21,7 +21,7 @@ average.rain <- as_tibble(rain) |>
   summarise(avg.Rainy = mean(pct.Rainy) * 100)
 
 # plot
-pdf("MelbourneRainfallFig_8_1_3e.pdf",height=6,width=9)
+# pdf("MelbourneRainfallFig_8_1_3e.pdf",height=6,width=9)
 as_tibble(rain) |>
   group_by(month, year) |>
   summarise(pct.Rainy = mean(Rainy) * 100, .groups = 'drop') |>
@@ -29,4 +29,4 @@ as_tibble(rain) |>
   geom_line() +
   geom_line(data = average.rain, aes(y = avg.Rainy, x = month), colour="black", group = 1, linetype = "dashed", size = 1.2) +
   xlab("Month") + ylab("Percent of rainy days per month")
-dev.off()
+#dev.off()
