@@ -1,35 +1,32 @@
 #################
 # Code for creating Figure 9.1
 
-
-rain.data <- read.csv("Data/MelbourneRainfall.csv")
+rain.data <- read.csv("MelbourneRainfall.csv")
 
 rain <- rain.data |>
-  dplyr::mutate(Date = dmy(as.character(rain.data$Date))) |>
+  mutate(Date = dmy(as.character(rain.data$Date))) |>
   as_tsibble(index = Date)
 
+rain <- rain |> 
+  mutate(
+    Rainy = (rain$RainfallAmount_millimetres > 0),  # create new binary column Rainy
+    month = format(Date, format = "%m"),
+    year = format(Date, "%Y")
+  )
 
-rain <- rain |> mutate(day = format(Date, "%d"), month = format(Date, "%m"), year = format(Date, "%Y")) |>
-  unite("month_year", month:year, sep = "-", remove = FALSE) 
+average.rain <- as_tibble(rain) |>
+  group_by(month, year) |>
+  summarise(pct.Rainy = mean(Rainy)) |>
+  group_by(month) |>
+  summarise(avg.Rainy = mean(pct.Rainy) * 100)
 
-rain <- rain |> mutate(rainy = ifelse(RainfallAmount_millimetres>0,1,0))
-
-rain <-  rain |> group_by(month_year) |> 
-            summarise(per.rainy = mean(rainy)) |> 
-            mutate(Year = str_sub(month_year, start = 4, end = 7)) |>
-            mutate(month = str_sub(month_year, start = 1, end = 2))
-
-avr.rain <- rain |> group_by(month) |> summarise(avr.per.rainy = mean(per.rainy)) |>
-            mutate(Year = "mean")
-
-# Plot
-# pdf("Plots/MelbourneRainfallFig_8_1_3e.pdf",height=6,width=9)
-rain |>
-  ggplot(aes(x=month, y=per.rainy, group=Year, color=Year)) +
-  geom_line() + 
-  geom_line(aes(y=avr.per.rainy), data = avr.rain, colour="black", linetype = "dashed", size = 1.2) +
+# plot
+pdf("MelbourneRainfallFig_8_1_3e.pdf",height=6,width=9)
+as_tibble(rain) |>
+  group_by(month, year) |>
+  summarise(pct.Rainy = mean(Rainy) * 100, .groups = 'drop') |>
+  ggplot(aes(x = month, y = pct.Rainy, group = year, color = year)) +
+  geom_line() +
+  geom_line(data = average.rain, aes(y = avg.Rainy, x = month), colour="black", group = 1, linetype = "dashed", size = 1.2) +
   xlab("Month") + ylab("Percent of rainy days per month")
-# dev.off()
-
-
-
+dev.off()
