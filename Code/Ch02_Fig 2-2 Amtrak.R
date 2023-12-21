@@ -1,5 +1,5 @@
 #################
-# Code to create Figure 2-2 For the 3rd addition
+# Code to create Figure 2-2
 
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
