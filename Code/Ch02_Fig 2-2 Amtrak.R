@@ -1,7 +1,6 @@
 #################
 # Code to create Figure 2-2
 
-
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
@@ -9,8 +8,6 @@ ridership <- Amtrak.data |>
 
 View(ridership)
 
-
-# Figure 2-3
 pdf("Plots/AmtrakFig_2_2_3e.pdf",height=3,width=5)
 ridership |>
   autoplot(Ridership) +
