@@ -4,7 +4,7 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 
@@ -13,9 +13,9 @@ valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
 
 
 fit <- train.ridership |>
-  model(trend_model = TSLM(Ridership ~  trend()  + I(trend()^2)  ))
+  model(trend_model = TSLM(Ridership ~  trend() + I(trend()^2)))
 
-fc <- fit |> forecast(h = dim(valid.ridership)[1])
+fc <- fit |> forecast(h = nrow(valid.ridership))
 
 augment(fit) # print table with fitted values and the residuals.
 
