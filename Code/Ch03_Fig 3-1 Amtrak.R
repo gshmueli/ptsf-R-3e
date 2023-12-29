@@ -4,7 +4,7 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 pdf("Plots/AmtrakFig_3_1_3e.pdf",height=4,width=6)
