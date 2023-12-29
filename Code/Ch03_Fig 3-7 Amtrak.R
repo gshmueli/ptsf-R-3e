@@ -1,10 +1,10 @@
 #################
-# Code to create Figure 3.3 (naive forecasts)
+# Code to create Figure 3.7 (naive and seaonal naive forecasts)
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
@@ -12,12 +12,12 @@ valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
 
 # Naive forecasts
 ridership.naive <- train.ridership |>
-  model(naive_model = NAIVE(Ridership))  |> 
+  model(naive_model = NAIVE(Ridership)) |> 
   forecast(h = "3 years") 
 
 # Seasonal naive forecasts
 ridership.snaive <- train.ridership |>
-  model(snaive_model = SNAIVE(Ridership))  |> 
+  model(snaive_model = SNAIVE(Ridership)) |> 
   forecast(h = "3 years") 
 
 fc <- 
