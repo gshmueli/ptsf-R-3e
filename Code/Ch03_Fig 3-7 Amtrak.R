@@ -7,8 +7,8 @@ ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
-train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
-valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
+valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
 # Naive forecasts
 ridership.naive <- train.ridership |>
@@ -34,8 +34,8 @@ train.ridership |>
   
   geom_segment(aes(x = yearmonth("1991-Jan"), y = 2250, 
                    xend = yearmonth("2001-Mar"), yend = 2250),
-               arrow = arrow(length = unit(0.25, "cm"), ends = "both"), size=0.3, color="grey55")+  # arrow Training
-  annotate(geom="text", x=yearmonth("1996-Aug"), y=2280, label="Training", color="grey37")+
+               arrow = arrow(length = unit(0.25, "cm"), ends = "both"), size = 0.3, color = "grey55")+  # arrow Training
+  annotate(geom = "text", x = yearmonth("1996-Aug"), y = 2280, label = "Training", color = "grey37")+
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
 
 pdf("Plots/AmtrakFig_3_3_3e.pdf",height=4,width=6)
