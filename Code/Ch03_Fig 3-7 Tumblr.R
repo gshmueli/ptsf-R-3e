@@ -4,7 +4,7 @@
 Tumblr.data <- read.csv("Data/Tumblr.csv")
 
 tumblr <- Tumblr.data |>
-  mutate(Month = yearmonth(as.character( Tumblr.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Tumblr.data$Month))) |>
   as_tsibble(index = Month)
 
 people.ts <- tumblr |> 
