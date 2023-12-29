@@ -1,5 +1,5 @@
 #################
-# Code to create Figure 3.7
+# Code to create Figure 3.6
 
 Tumblr.data <- read.csv("Data/Tumblr.csv")
 
