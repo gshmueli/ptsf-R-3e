@@ -26,7 +26,7 @@ lengthValidPeriod <- nrow(valid.ridership)
 error <- rep(NA, lengthValidPeriod -1 + stepAhead)
 
 for(i in 1:lengthValidPeriod ){
-  train.ridership.l <- ridership |> slice(., 1:(lengthTrainPeriod-1+i)) 
+  train.ridership.l <- ridership |> slice(1:(lengthTrainPeriod-1+i)) 
 
   ridership.naive.l <- train.ridership.l |>
                            model(naive_model = NAIVE(Ridership))
