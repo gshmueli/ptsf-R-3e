@@ -38,7 +38,7 @@ for(i in 1:lengthValidPeriod ){
 error <- unlist(error) 
 
 
-ridership.naive.pred.l <- rep(NA, dim(valid.ridership)[1])
+ridership.naive.pred.l <- rep(NA, nrow(valid.ridership))
 for(i in 1:lengthValidPeriod ){
   train.ridership.l <- ridership |> slice(1:(lengthTrainPeriod-1+i)) 
  
