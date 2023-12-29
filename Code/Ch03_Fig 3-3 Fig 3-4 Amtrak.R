@@ -1,20 +1,20 @@
 #################
-# Code to create Figure 3.4 and Figure 3.5
+# Code to create Figure 3.3 and Figure 3.4
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character(Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
-train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
-valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
+valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
 ridership.lm <- train.ridership |>
-  model(trend_model = TSLM(Ridership ~  trend()  + I(trend()^2)  ))
+  model(trend_model = TSLM(Ridership ~  trend()  + I(trend()^2)))
 augment(ridership.lm)
 
-ridership.lm.pred <- ridership.lm |> forecast(h = dim(valid.ridership)[1])
+ridership.lm.pred <- ridership.lm |> forecast(h = nrow(valid.ridership))
 names(ridership.lm.pred)
 fc.resid <- valid.ridership$Ridership - ridership.lm.pred$.mean
 
@@ -22,9 +22,6 @@ fc.resid <- data.frame(ridership.lm.pred$Month,fc.resid)
 colnames(fc.resid)[1] <- "Month"
 fc.resid <- fc.resid |>
   as_tsibble(index = Month)
-
-
-
 
 #### Figure 3.4:
 p.model <- ridership  |>
@@ -59,7 +56,7 @@ grid.arrange(p.model, p.reid , nrow = 2)
 dev.off()
 
 
-#### Figure 3.5:
+#### Figure 3.5 (histogram):
 
 pdf("Plots/AmtrakFig_3_5_3e.pdf",height=4,width=6)
 fc.resid |> 
