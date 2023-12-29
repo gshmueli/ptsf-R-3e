@@ -7,10 +7,8 @@ ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
-
 train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
 valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
-
 
 fit <- train.ridership |>
   model(trend_model = TSLM(Ridership ~  trend() + I(trend()^2)))
@@ -18,9 +16,6 @@ fit <- train.ridership |>
 fc <- fit |> forecast(h = nrow(valid.ridership))
 
 augment(fit) # print table with fitted values and the residuals.
-
-
-
 
 pdf("Plots/AmtrakFig_3_2_3e.pdf",height=4,width=6)
 ridership  |>
@@ -40,8 +35,6 @@ ridership  |>
   annotate(geom = "text", x = yearmonth("1996-Aug"), y = 2280, label = "Training", color = "grey37") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
 dev.off()
-
-
 
 #########################
 # Code for computing the predictive measures, based on the values in Table 3.1
