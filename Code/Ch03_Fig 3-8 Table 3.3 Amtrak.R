@@ -21,8 +21,8 @@ ridership.naive <- train.ridership |>
   model(roll_model = NAIVE(Ridership))
 
 stepAhead <- 1
-lengthTrainPeriod <- dim(train.ridership)[1]
-lengthValidPeriod <- dim(valid.ridership)[1]
+lengthTrainPeriod <- nrow(train.ridership)
+lengthValidPeriod <- nrow(valid.ridership)
 error <- rep(NA, lengthValidPeriod -1 + stepAhead)
 
 for(i in 1:lengthValidPeriod ){
