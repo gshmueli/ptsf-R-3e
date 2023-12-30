@@ -5,7 +5,7 @@
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  dplyr::mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
+  mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 train.ridership <- ridership |> filter_index(~ "2001 Mar") 
@@ -15,26 +15,22 @@ fit.ets.HW <- train.ridership |> model(ets =  ETS(Ridership ~ error("M") + trend
 
 fc.ets.HW <- fit.ets.HW |> forecast(h = nrow(valid.ridership))
 
-
-
 pdf("Plots/AmtrakFig_5_6_3e.pdf", height=4, width=6)
 
 ridership  |>
   autoplot(Ridership) +
-  geom_line(aes(y=.mean), data = fc.ets.HW,  colour="blue1", linetype = "dashed") +
+  geom_line(aes(y = .mean), data = fc.ets.HW,  colour = "blue1", linetype = "dashed") +
   autolayer(pred.values.ets.HW, alpha = 0.5, level = NULL, colour = "blue1") +
   xlab("Time") + ylab("Ridership")  +
   theme(legend.position = "none") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
-  geom_vline(xintercept= as.numeric(as.Date(yearmonth("2001-April"))), linetype="solid", color = "grey55", size=0.6) +
-  geom_segment(aes(x = yearmonth("2001-May"), y = 2250, 
-                   xend = yearmonth("2004-Mar"), yend = 2250),
+  geom_vline(xintercept = as.numeric(as.Date(yearmonth("2001-April"))), linetype = "solid", color = "grey55", size = 0.6) +
+  geom_segment(aes(x = yearmonth("2001-May"), y = 2250, xend = yearmonth("2004-Mar"), yend = 2250),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both") , color = "grey55")+  
   annotate(geom = "text", x = yearmonth("2002-Aug"), y=2290, label = "Validation", color = "grey37") +
-  geom_segment(aes(x = yearmonth("1991-Jan"), y = 2250, 
-                   xend = yearmonth("2001-Mar"), yend = 2250),
+  geom_segment(aes(x = yearmonth("1991-Jan"), y = 2250, xend = yearmonth("2001-Mar"), yend = 2250),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both"), color = "grey55")+  
-  annotate(geom="text", x=yearmonth("1996-Aug"), y = 2290, label = "Training", color = "grey37") # +
+  annotate(geom = "text", x = yearmonth("1996-Aug"), y = 2290, label = "Training", color = "grey37")
 
 dev.off()
 
