@@ -51,7 +51,7 @@ p.errors <- autoplot(resid(ridership.lm), .resid) +
 #### Figure 3.4 (histogram):
 pdf("Plots/AmtrakFig_3_4_3e.pdf", height=4, width=6)
 fc |> 
-  ggplot(aes(x = fc.error)) + # errors of the validation set
+  ggplot(aes(x = fc.error)) + # validation errors
   geom_histogram(bins = 7, color = "black", fill = "white") +
   xlab("Forecast Error") + ylab("Frequency")
 dev.off()
