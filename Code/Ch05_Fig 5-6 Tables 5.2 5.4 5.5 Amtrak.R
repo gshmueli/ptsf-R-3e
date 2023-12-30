@@ -40,18 +40,12 @@ dev.off()
 
 report(fit.ets.HW)
 
-View(fit.ets.HW |> components())
-#fit.ets.HW |> components() |> fabletools::dable() # containing estimated states.
-View(fit.ets.HW |> augment())
-components(fit.ets.HW)[nrow(components(fit.ets.HW)),]
+View(fit.ets.HW |> components()) # to see the level, trend, seasonal components
 
 # Final states:
-n <-nrow(components(fit.ets.HW))
-components(fit.ets.HW)[n,c("level","slope")] # l & b
-t(components(fit.ets.HW)[(n-11):n,c("season")])  # s1 - s12
-
-
-#train.ridership |> model(ets =  ETS(Ridership ~ error("A")) )
+n <- nrow(components(fit.ets.HW))
+components(fit.ets.HW)[n, c("level", "slope")] # level and trend
+t(components(fit.ets.HW)[(n-11):n, c("season")])  # s1 - s12
 
 ############################################
 # Table 5.4
