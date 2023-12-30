@@ -23,7 +23,7 @@ colnames(fc.resid)[1] <- "Month"
 fc.resid <- fc.resid |>
   as_tsibble(index = Month)
 
-#### Figure 3.4:
+#### Figure 3.3:
 p.model <- ridership  |>
   autoplot(Ridership) +
   geom_line(aes(y = .fitted, colour = .model), data = fitted(ridership.lm), size = 1.25, color = "blue1") +
@@ -34,29 +34,25 @@ p.model <- ridership  |>
   geom_segment(aes(x = yearmonth("2001-May"), y = 2250, 
                    xend = yearmonth("2004-Mar"), yend = 2250),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both") , color = "grey55") +  
-  annotate(geom="text", x=yearmonth("2002-Aug"), y=2290, label = "Validation", color = "grey37") +
+  annotate(geom = "text", x = yearmonth("2002-Aug"), y = 2290, label = "Validation", color = "grey37") +
   geom_segment(aes(x = yearmonth("1991-Jan"), y = 2250, 
                    xend = yearmonth("2001-Mar"), yend = 2250),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both"), color = "grey55") +  
   annotate(geom = "text", x = yearmonth("1996-Aug"), y=2290, label = "Training", color = "grey37") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
 
-
-
 p.reid <- ridership.lm|> augment() |> 
   autoplot(.resid) + 
   xlab("Time") + ylab("Residuals") +
-  autolayer(fc.resid ) +
+  autolayer(fc.resid) +
   geom_vline(xintercept = as.numeric(as.Date(yearmonth("2001-April"))), linetype = "solid", color = "grey55", size = 0.6)+
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
-
   
-pdf("Plots/AmtrakFig_3_4_3e.pdf",height=5.2,width=8)
-grid.arrange(p.model, p.reid , nrow = 2)
+pdf("Plots/AmtrakFig_3_4_3e.pdf", height=5.2, width=8)
+grid.arrange(p.model, p.reid, nrow = 2)
 dev.off()
 
-
-#### Figure 3.5 (histogram):
+#### Figure 3.4 (histogram):
 
 pdf("Plots/AmtrakFig_3_5_3e.pdf",height=4,width=6)
 fc.resid |> 
