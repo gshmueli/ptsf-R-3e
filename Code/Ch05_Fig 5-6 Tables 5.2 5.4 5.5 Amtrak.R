@@ -51,8 +51,9 @@ t(components(fit.ets.HW)[(n-11):n, c("season")])  # s1 - s12
 # Table 5.4
 ############################################
 
-fit.ets.out <- train.ridership |> model(ets =  ETS(Ridership)) 
-report(fit.ets.out)
+fit.ets.out <- train.ridership |> 
+  model(ets = ETS(Ridership)) |>
+  report()
 
 
 ############################################
