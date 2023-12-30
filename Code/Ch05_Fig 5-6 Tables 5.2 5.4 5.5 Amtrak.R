@@ -1,23 +1,19 @@
 ############################################
-# Code to create Figure 5.6 
+# Code for creating Figure 5.6 and Table 5.2
 ############################################
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
 ridership <- Amtrak.data |>
-  dplyr::mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  dplyr::mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
-train.ridership <- ridership |> filter_index( ~ "2001 Mar") 
-valid.ridership <- ridership |> filter_index( "2001 Apr" ~ .)
+train.ridership <- ridership |> filter_index(~ "2001 Mar") 
+valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
-fit.ets.HW <- train.ridership |> model(ets =  ETS(Ridership ~ error("M") + trend("A") + season("A")) ) 
-report(fit.ets.HW)
-pred.values.ets.HW <- fitted.values(fit.ets.HW)
-View(pred.values.ets.HW)
+fit.ets.HW <- train.ridership |> model(ets =  ETS(Ridership ~ error("M") + trend("A") + season("A"))) 
 
-
-fc.ets.HW <- fit.ets.HW |> forecast(h=dim(valid.ridership)[1])
+fc.ets.HW <- fit.ets.HW |> forecast(h = nrow(valid.ridership))
 
 
 
@@ -42,18 +38,15 @@ ridership  |>
 
 dev.off()
 
-
 ############################################
-# Code to create Table 5.2
+# Table 5.2
 ############################################
 
-# install.packages("fable", type = "source")
-# library("fable")
 report(fit.ets.HW)
 
 View(fit.ets.HW |> components())
 #fit.ets.HW |> components() |> fabletools::dable() # containing estimated states.
-View(fit.ets.HW |> augment() )
+View(fit.ets.HW |> augment())
 components(fit.ets.HW)[nrow(components(fit.ets.HW)),]
 
 # Final states:
@@ -64,10 +57,8 @@ t(components(fit.ets.HW)[(n-11):n,c("season")])  # s1 - s12
 
 #train.ridership |> model(ets =  ETS(Ridership ~ error("A")) )
 
-
-
 ############################################
-# Code to create Table 5.4
+# Table 5.4
 ############################################
 
 fit.ets.out <- train.ridership |> model(ets =  ETS(Ridership)) 
@@ -75,18 +66,18 @@ report(fit.ets.out)
 
 
 ############################################
-# Code to create Table 5.5
+# Table 5.5
 ############################################
 
-accuracy(fit.ets.HW) # train.ridership
-fc.ets.HW <- fit.ets.HW |> forecast(h=dim(valid.ridership)[1])
+accuracy(fit.ets.HW) # training
+fc.ets.HW <- fit.ets.HW |> forecast(h = nrow(valid.ridership))
 accuracy(fc.ets.HW, ridership)
 
 accuracy(fit.ets.out)
-fc.ets.out <- fit.ets.out |> forecast(h=dim(valid.ridership)[1])
+fc.ets.out <- fit.ets.out |> forecast(h = nrow(valid.ridership))
 accuracy(fc.ets.out, ridership)
 
 # IMPORTANT comment
 # In Table 5.5 we applied the accuracy() to the complete series rather than only the validation. 
 # This is required for seasonal series. If we use accuracy(fc.ets.out, valid.ridership) it does not know what are the validation seasons and cannot compute seasonal MAPE and MASE. 
-# In forecast package, the forecast object includes the information of the original dataset; In FABLE, the forecast object does not include this info (to make the object smaller and simpler)
+# In forecast package, the forecast object includes the information of the original dataset; In fable package, the forecast object does not include this info (to make the object smaller and simpler)
