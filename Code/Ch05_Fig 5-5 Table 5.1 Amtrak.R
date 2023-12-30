@@ -17,7 +17,7 @@ valid.ridership <- lag_data |> filter_index("2001 Apr" ~ .)
 fit.ets <- train.ridership |> 
 model(ets = ETS(dif12_1 ~ error("A") + trend("N", alpha = 0.2) + season("N")))
 
-fc.ets <- fit.ets |> forecast(h = nrow(valid.ridership))
+fc.ets <- fit.ets |> forecast(h = nrow(valid.ridership)) |> print()
 
 pdf("Plots/AmtrakFig_5_5_3e.pdf",height=4,width=6)
 fc.ets |> 
