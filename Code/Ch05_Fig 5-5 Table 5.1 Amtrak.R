@@ -11,8 +11,8 @@ lag_data <- ridership |> mutate(dif1 =  Ridership - lag(Ridership, 1),
                                  dif12 =  Ridership - lag(Ridership, 12),
                                  dif12_1 =  dif12 - lag(dif12, 1))
 
-train.ridership <- lag_data  |> filter_index("1992 Feb" ~ "2001 Mar") # ETS does not support missing values
-valid.ridership <- lag_data  |> filter_index("2001 Apr" ~ .)
+train.ridership <- lag_data |> filter_index("1992 Feb" ~ "2001 Mar") # ETS does not support missing values
+valid.ridership <- lag_data |> filter_index("2001 Apr" ~ .)
 
 fit.ets <- train.ridership |> 
 model(ets = ETS(dif12_1 ~ error("A") + trend("N", alpha = 0.2) + season("N")))
