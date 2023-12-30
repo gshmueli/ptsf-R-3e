@@ -16,10 +16,6 @@ valid.ridership <- lag_data |> filter_index("2001 Apr" ~ .)
 
 fit.ets <- train.ridership |> 
 model(ets = ETS(dif12_1 ~ error("A") + trend("N", alpha = 0.2) + season("N")))
-report(fit.ets)
-
-pred.values.ets <- fitted.values(fit.ets)
-View(pred.values.ets)
 
 fc.ets <- fit.ets |> forecast(h = nrow(valid.ridership))
 
@@ -27,8 +23,7 @@ pdf("Plots/AmtrakFig_5_5_3e.pdf",height=4,width=6)
 fc.ets |> 
   autoplot(train.ridership, level = NULL, size = 1, linetype = "dashed",  colour = "blue1") +
   geom_line(aes(y = dif12_1), data = lag_data, size = 0.5) +
-  geom_line(aes(y = .fitted), data = pred.values.ets, size=1, colour="blue1") +
-  xlab("Time") + ylab("Twice-Difference") + 
+  geom_line(aes(y = .fitted), data = fitted.values(fit.ets), size = 1, colour = "blue2") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
   geom_vline(xintercept = as.numeric(as.Date(yearmonth("2001-April"))), linetype="solid", color = "grey55", size=0.6) +
   geom_segment(aes(x = yearmonth("2001-May"), y = 250, xend = yearmonth("2004-Mar"), yend = 250),
