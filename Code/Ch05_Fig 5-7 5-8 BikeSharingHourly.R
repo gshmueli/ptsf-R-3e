@@ -34,22 +34,11 @@ dev.off()
 ## Create Figure 5.8
 
 ## Create index t for STL
-
 rides.train <- rides.train |>
   mutate(t = row_number()) |>
   update_tsibble(index = t, regular = TRUE)
 
-#rides.train |>
-#  model(
-#    STL(cnt ~ season(period = 24) +
-#          season(period = 7*24),
-#        robust = TRUE)
-#  ) |>
-#  components() |>
-#  autoplot() 
-
-  ## Run STL + ETS
-
+## Run STL + ETS
 my_dcmp_spec <- decomposition_model(
   STL(cnt ~ season(period = 24) +
         season(period = 7*24),
@@ -64,6 +53,6 @@ fc <- rides.train |>
   autoplot(rides.train, level = NULL, linetype = "dashed") +
   labs(y = "Hourly bike rentals")
 
-pdf("Plots/BikeFig_5_8_3e.pdf",height=4,width=6)
+pdf("Plots/BikeFig_5_8_3e.pdf", height=4, width=6)
 fc
 dev.off()
