@@ -1,5 +1,5 @@
 #################
-# Code for creatomg Figure 8.5
+# Code for creating Figure 8.5
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
@@ -21,8 +21,8 @@ fc <- fit.nnetar |> forecast(valid.ridership, times = 0)
 
 ridership |> 
   autoplot(Ridership) +
-  geom_line(aes(y=.mean), data = fc, linetype = "dashed", size = 1, colour="blue1") +
-  geom_line(aes(y=.fitted), data = augment(fit.nnetar), alpha = 0.5, size = 1, colour="blue1") +
+  geom_line(aes(y = .mean), data = fc, linetype = "dashed", size = 1, colour = "blue1") +
+  geom_line(aes(y = .fitted), data = augment(fit.nnetar), alpha = 0.5, size = 1, colour = "blue1") +
   xlab("Month") + ylab("Ridership")  + 
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y")
 
