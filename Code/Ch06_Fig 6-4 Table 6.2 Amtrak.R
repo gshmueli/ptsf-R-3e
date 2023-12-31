@@ -1,6 +1,5 @@
 #################
-# Code to create Figure 6.4 & Table 6.2
-
+# Code for creating Figure 6.4 & Table 6.2
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
@@ -11,7 +10,6 @@ ridership <- Amtrak.data |>
 train.ridership <- ridership |> filter_index(~ "2001 Mar") 
 valid.ridership <- ridership |> filter_index("2001 Apr" ~ .)
 
-
 train.lm <- train.ridership |>
   model(
     linear = TSLM(Ridership ~ trend()),
@@ -20,7 +18,6 @@ train.lm <- train.ridership |>
 fc_trends <- train.lm |> forecast(h = 36)
 
 pdf("Plots/AmtrakFig_6_4_3e.pdf", height=6, width=8)
-
 ridership |>
   autoplot(Ridership) +
   geom_line(data = fitted(train.lm),
@@ -39,7 +36,6 @@ ridership |>
 dev.off()
 
 ### Polynomial trend - Table 6.2
-
 train.lm.poly.trend <- train.ridership |> 
   model(TSLM(Ridership ~ trend() + I(trend()^2)))
 
