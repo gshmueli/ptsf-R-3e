@@ -1,5 +1,5 @@
 ################
-# Code for creating Table 6.3 & Figure 6.7
+# Code for creating Table 6.4 & Figure 6.7
 
 Amtrak.data <- read.csv("Data/Amtrak data.csv")
 
