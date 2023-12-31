@@ -18,8 +18,11 @@ valid.bike <- bike |> filter_index("2012-10-03"~.)   # 90 days
 # fit TSLM model
 fit <- train.bike |> 
   model(reg.model = TSLM(cnt ~ trend() + season() + Month + WorkingDay_Weather)) 
-report(fit)
 
+######## Table 7.2
+report(fit, digits = 2)
+
+######## Figure 7.7
 # forecast validation period (valid.bike also has external predictors)
 fc <- fit |> forecast(valid.bike)
 
