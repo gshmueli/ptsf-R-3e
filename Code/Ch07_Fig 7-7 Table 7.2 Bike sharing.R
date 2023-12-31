@@ -1,5 +1,5 @@
 ################
-# Code for creating Fig.7.7 (Bike Rentals: TSLM with external predictors (Example 3))
+# Code for creating Figure 7.7 and Table 7.2 (Bike Rentals: TSLM with external predictors (Example 3))
 ###################
 
 bike <- read.csv("Data/BikeSharingDaily.csv") |>
