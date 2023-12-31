@@ -25,7 +25,7 @@ WalMartStock <- WalMartStock |>
 
 
 pdf("Plots/WalMartFig_7_10_3e.pdf", height=5.5, width=8)
-WalMartStock.df |>
+WalMartStock |>
   autoplot() + 
   xlab("Time") + ylab("Close Price ($)") 
 dev.off() 
