@@ -1,5 +1,5 @@
 ################
-# Code for creating Figure 7.8 (Walmart Sales - ARIMA with external information (Example 4))
+# Code for creating Figure 7.8 and Table 7.3 (Walmart Sales - ARIMA with external information (Example 4))
 ###################
 
 one.pair <- read.csv("Data/Walmart_One_Pair.csv")
@@ -18,12 +18,16 @@ fit <- one.pair.train |>
         AR2.IsHoliday   = ARIMA(Weekly_Sales ~ IsHoliday)#,  
         #     SAR1.IsHoliday = ARIMA(Weekly_Sales ~ IsHoliday + 0 + pdq(1,0,0) + PDQ(0,1,0))  # specify best stepwise model without IsHoliday
   )
+
+######## Table 7.3
 fit
+
 glance(fit)
 fit |> select(SAR1) |> report()
 fit |> select(AR2.IsHoliday) |> report()
 #fit |> select(SAR1.IsHoliday) |> report()
 
+####### Figure 7.8
 # Forcast validation period
 fc <- fit |>
   forecast(one.pair.valid)
