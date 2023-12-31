@@ -1,6 +1,5 @@
 ################
-# Code to create Fig.7.7
-# Forecasting Bike Rentals: TSLM with external predictors (Example 3)
+# Code for creating Fig.7.7 (Bike Rentals: TSLM with external predictors (Example 3))
 ###################
 
 bike <- read.csv("Data/BikeSharingDaily.csv") |>
@@ -40,12 +39,10 @@ p1 <- autoplot(bike, cnt) +
   labs(title = "Rentals and Forecasts", y = "Count") +
   theme(legend.position = "none") +
   geom_vline(xintercept= as.numeric(as.Date(ymd("2012-10-02"))), linetype = "solid", color = "grey55", size = 0.6)+
-  geom_segment(aes(x = ymd("2012-10-02"), y = 10000, 
-                   xend = ymd("2012-12-31"), yend = 10000),
+  geom_segment(aes(x = ymd("2012-10-02"), y = 10000, xend = ymd("2012-12-31"), yend = 10000),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both") , color = "grey55")+ 
   annotate(geom = "text", x = ymd("2012-11-20"), y = 10500, label = "Validation", color = "grey37") +
-  geom_segment(aes(x = ymd("2011-01-01"), y = 10000, 
-                   xend = ymd("2012-10-01"), yend = 10000),
+  geom_segment(aes(x = ymd("2011-01-01"), y = 10000, xend = ymd("2012-10-01"), yend = 10000),
                arrow = arrow(length = unit(0.25, "cm"), ends = "both"), color = "grey55") + 
   annotate(geom = "text", x = ymd("2012-01-01"), y = 10500, label = "Training", color="grey37")
 
