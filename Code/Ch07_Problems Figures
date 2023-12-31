@@ -1,0 +1,102 @@
+############################################
+############################################
+# Figures for end-of-chapter 7 Problems
+############################################
+############################################
+
+
+
+############################################
+# Q1 - Fig 7.9 - see Ch 2 problems Fig 2.7
+############################################
+
+
+############################################
+# Q2 - Fig 7.10, Fig 7.11 & Table 7.4
+############################################
+
+# Load and prepare data.
+WalMartStock <- read.csv("Data/WalMartStock.csv")
+WalMartStock$Date <- as.Date(WalMartStock$Date, format="%d-%b-%y")
+
+WalMartStock <- WalMartStock |>
+  mutate(Date = ymd(as.character(WalMartStock$Date))) |>
+  as_tsibble(index = Date, regular = FALSE) # the data involves irregular intervals
+
+
+pdf("Plots/WalMartFig_7_10_3e.pdf", height=5.5, width=8)
+WalMartStock.df |>
+  autoplot() + 
+  xlab("Time") + ylab("Close Price ($)") 
+dev.off() 
+
+
+# WalMartStock |>  fill_gaps(., .full = FALSE) |>  View()
+
+# ACF
+p1 <- WalMartStock |>  ACF(Close, lag_max = 10 ) |>   
+  autoplot() + xlab("Lag") + ggtitle("ACF Plot for Close")
+
+# ACF for 1st Diff
+WalMartStock <- WalMartStock |> 
+  mutate(diff1Close = difference(Close))
+p2 <- WalMartStock |>  ACF(diff1Close, lag_max = 10) |>   
+  autoplot() + xlab("Lag") + ggtitle("ACF Plot for Differenced Series")
+
+pdf("Plots/WalMartFig_7_11_3e.pdf",height=5.5,width=8)
+grid.arrange(p1, p2, ncol=2)
+dev.off()
+
+############################################
+# Q2 - TABLE 7.4 
+############################################
+
+# Models
+fit <-  fill_gaps(update_tsibble(WalMartStock, regular = TRUE), .full = FALSE) |> 
+  model(arima = ARIMA(Close ~ 1 + pdq(1,0,0)))
+
+report(fit)
+
+fit.1dif <- fill_gaps(update_tsibble(WalMartStock, regular = TRUE), .full = FALSE) |> 
+  model(arima = ARIMA(diff1Close ~ 1 + pdq(1,0,0)))
+
+report(fit.1dif)
+
+WalMartStock |>
+  autoplot(diff1Close)
+
+############################################
+# Q3 - Fig 7.12 - see Ch 6 problems Q5, Fig 6.14
+############################################
+
+
+
+############################################
+# Q4 - Fig 7.13 - see Ch 5 problems Q6, Fig 5.12
+############################################
+
+
+############################################
+# Q5 - Fig 7.14 - see Ch 5 problems Q8, Fig 5.14
+############################################
+
+
+
+############################################
+# Q6 - Fig 7.15
+############################################
+store <- read.csv("Data/WalmartStore1Dept72.csv")
+
+store <- store |>
+  mutate(Week = yearweek(dmy(store$Date))) |>
+  as_tsibble(index = Week)
+
+pdf("Plots/WalmartStore1Fig_7_15_3e.pdf", height=5.5, width=8)
+store  |>  filter_index(~ "2012 W43")  |>
+  autoplot(Weekly_Sales) + 
+  xlab("Time") + ylab("Weekly Sales") +
+  scale_x_yearweek(date_breaks = "10 weeks", date_labels = "%Y(w%W)")   +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.3))  # Rotate and space axis labels in ggplot2
+dev.off()
+
+
