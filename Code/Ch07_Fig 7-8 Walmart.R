@@ -1,20 +1,18 @@
 ################
-# Code to create Fig. 7.8
-# Walmart Sales - ARIMA with external information (Example 4)
+# Code for creating Figure 7.8 (Walmart Sales - ARIMA with external information (Example 4))
 ###################
 
 one.pair <- read.csv("Data/Walmart_One_Pair.csv")
 
 one.pair <- one.pair |>
-  dplyr::mutate(Week = yearweek(one.pair$Date) ) |>
+  mutate(Week = yearweek(one.pair$Date) ) |>
   filter(!is.na(Weekly_Sales)) |> # removes rows where Weekly_Sales is NA
   as_tsibble(index = Week)
-
 
 one.pair.train <- one.pair |> filter_index(~ "2012 W05")  # 2 years (105 weeks)
 one.pair.valid <- one.pair |> filter_index("2012 W06" ~ "2012 W43")  # 38 weeks
 
-# Compare stepwise ARIMA(1,0,1) with stepwise AR(2) + IsHoliday.
+# Compare stepwise ARIMA(1,0,1) with stepwise AR(2) + IsHoliday
 fit <- one.pair.train |>
   model(SAR1 = ARIMA(Weekly_Sales),   # using the default stepwise procedure
         AR2.IsHoliday   = ARIMA(Weekly_Sales ~ IsHoliday)#,  
@@ -26,7 +24,7 @@ fit |> select(SAR1) |> report()
 fit |> select(AR2.IsHoliday) |> report()
 #fit |> select(SAR1.IsHoliday) |> report()
 
-# Forcasting
+# Forcast validation period
 fc <- fit |>
   forecast(one.pair.valid)
 
