@@ -20,6 +20,7 @@ fit <- train.rain |>
   model(
     logistic = LOGISTIC(Rainy ~ Lag1 + Seasonal_sine + Seasonal_cosine)
   )
+# Or, equivalently, use the simpler code: LOGISTIC(Rainy ~ Lag1 + fourier(K=1, period = "year")
 
 report(fit)
 fitted(fit) # gives predicted probabilities for training period
