@@ -98,15 +98,18 @@ for (i in 1:nValid) {
   forecast[i] <- pred[1]
 }
 
-# Inverse the normalization
-forecast <- inv_normalize(forecast)
+forecast_tbl <- valid |> transmute(Forecast = inv_normalize(forecast))
 
+## Alternative longer step-by-step approach:
+# Inverse the normalization
+# forecast <- inv_normalize(forecast)
 # Convert to tsibble
-forecast_tbl <- tsibble(
-  Forecast = forecast,
-  Month = yearmonth(seq(as.Date("1991/01/01") + months(nTrain), by = "1 month", length.out = length(forecast))),
-  index = Month
-)
+#forecast_tbl <- tsibble(
+#  Forecast = forecast,
+#  Month = yearmonth(seq(as.Date("1991/01/01") + months(nTrain), by = "1 month", length.out = length(forecast))),
+#  index = Month
+#)
+
 # For fitted values
 fitted <- predict(lstm_model, x.train, batch_size = 1)
 fitted_values <- inv_normalize(as.vector(fitted))
