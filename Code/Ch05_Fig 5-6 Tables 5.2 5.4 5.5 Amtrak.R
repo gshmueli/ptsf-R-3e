@@ -20,7 +20,7 @@ pdf("Plots/AmtrakFig_5_6_3e.pdf", height=4, width=6)
 ridership  |>
   autoplot(Ridership) +
   geom_line(aes(y = .mean), data = fc.ets.HW,  colour = "blue1", linetype = "dashed") +
-  autolayer(pred.values.ets.HW, alpha = 0.5, level = NULL, colour = "blue1") +
+  autolayer(fitted.values(fit.ets.HW), alpha = 0.5, level = NULL, colour = "blue1") +
   xlab("Time") + ylab("Ridership")  +
   theme(legend.position = "none") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
