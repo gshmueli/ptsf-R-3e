@@ -10,9 +10,9 @@ ridership <- Amtrak.data |>
   as_tsibble(index = Month)
 
 nValid <- 36
-nTrain <- dim(ridership)[1] - nValid
-train <- ridership |> filter(row_number() <= nTrain)
-valid <- ridership |> filter(row_number() > nTrain)
+nTrain <- nrow(ridership) - nValid
+train <- ridership[1:nTrain,]
+valid <- ridership[-(1:nTrain),]
 
 # Table 8.2: Step 1: Preparing Amtrak training data for forecasting with LSTM
 
