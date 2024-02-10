@@ -5,7 +5,7 @@
 Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month)) ) |>
   as_tsibble(index = Month)
 
 fit <- train.ridership |>
