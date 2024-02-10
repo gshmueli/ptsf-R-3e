@@ -1,10 +1,10 @@
 ################
 # Code for creating Figures 7.1-7.5
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 ridership.24 <- ridership |> filter_index(~ "1992 Dec") 
