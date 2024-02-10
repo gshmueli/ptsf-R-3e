@@ -1,10 +1,10 @@
 ################
 # Code for creating Table 6.4 & Figure 6.7
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
-  mutate(Month = yearmonth(as.character( Amtrak.data$Month))) |>
+  mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
   as_tsibble(index = Month)
 
 train.ridership <- ridership |> filter_index(~ "2001 Mar") 
