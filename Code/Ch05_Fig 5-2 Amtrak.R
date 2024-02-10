@@ -20,10 +20,10 @@ ma.ridership <- ma.ridership |> gather(model, value, Ridership:`Trailing Moving 
 
 pdf("Plots/AmtrakFig_5_2_3e.pdf", height=4, width=6)
 ma.ridership |> ggplot(aes(x = Month, y = value)) + 
-  geom_line(aes(color = model, linetype = model, size = model) ) +
+  geom_line(aes(color = model, linetype = model, size = model)) +
   scale_size_manual(values = c(1.2 , 0.4, 1.2)) + 
-  scale_linetype_manual(values = c("dotdash", "solid","longdash"))+
-  scale_color_manual(values=c("blue1", "black","coral"))+
+  scale_linetype_manual(values = c("dotdash", "solid", "longdash")) +
+  scale_color_manual(values=c("blue1", "black", "coral")) +
   theme(legend.position = "bottom") +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") 
 dev.off()
