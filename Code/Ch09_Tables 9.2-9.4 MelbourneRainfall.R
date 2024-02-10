@@ -36,3 +36,32 @@ confusionMatrix(data = as.factor(fitted(fit)$.fitted > 0.5),
 confusionMatrix(data = as.factor(fc$.mean > 0.5),
                 reference = as.factor(valid.rain$Rainy),
                 positive = "TRUE")
+
+### Table 9.3
+
+# Alternative: use glm() in stat package
+# Create data frame objects
+train.rain.df <- as.data.frame(train.rain)
+valid.rain.df <- as.data.frame(valid.rain)
+
+# Fit logistic regression using glm()
+fit.glm <- glm(Rainy ~ Lag1 + Seasonal_sine + Seasonal_cosine,
+data = train.rain.df, family = "binomial")
+
+summary(fit.glm) # estimated logistic model
+fitted(fit.glm) # predicted probabilities for training period
+
+# Predict validation period
+pred.glm <- predict(fit.glm, valid.rain.df, type = "response") # type = "response" gives probabilities
+
+
+### Table 9.4
+
+library(caret)
+confusionMatrix(data = as.factor(fitted(fit)$.fitted > 0.5),
+                  reference = as.factor(train.rain$Rainy),
+                  positive = "TRUE")
+
+confusionMatrix(data = as.factor(fc$.mean > 0.5),
+                reference = as.factor(valid.rain$Rainy),
+                positive = "TRUE")
