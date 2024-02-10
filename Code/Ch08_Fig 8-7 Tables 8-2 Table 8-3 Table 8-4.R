@@ -3,7 +3,7 @@
 # Chap 8 deep learning: Code for creating Figure 8.7 and Tables 8.2, 8.3, 8.4, 8.5
 ########################
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
