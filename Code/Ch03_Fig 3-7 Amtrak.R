@@ -1,7 +1,7 @@
 #################
 # Code to create Figure 3.7 (naive and seaonal naive forecasts)
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
