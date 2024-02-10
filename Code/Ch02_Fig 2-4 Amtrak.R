@@ -2,7 +2,7 @@
 #################
 # Code to create Figure 2-4
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
   as_tsibble(index = Month)
