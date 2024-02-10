@@ -1,7 +1,7 @@
 #################
 # Code for creating Figures 6.2, 6.3, and Table 6.1
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
   dplyr::mutate(Month = yearmonth(as.character(Amtrak.data$Month))) |>
