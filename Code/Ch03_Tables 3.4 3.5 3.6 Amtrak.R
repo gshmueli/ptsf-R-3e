@@ -2,7 +2,7 @@
 # This code calculates the naive and seasonal naive forecasts (Table 3.4) and their predictive measures (Table 3.5)
 
 
-Amtrak.data <- read.csv("Data/Amtrak data.csv")
+Amtrak.data <- read.csv("Data/Amtrak.csv")
 
 ridership <- Amtrak.data |>
   mutate(Month = yearmonth(as.character( Amtrak.data$Month)) ) |>
