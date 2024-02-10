@@ -14,13 +14,15 @@ fit <- train.ridership |>
     snaive_model = SNAIVE(Ridership)
   )
 
-fc <- fit |>
-  forecast(h = nrow(valid.ridership))
+# fixed validation forecasts:
+fc <- fit |> forecast(h = valid.ridership)
 
-# accuracy(fit) # get training accuracy
-accuracy(fc, valid.ridership) |>   # validation
+# validation accuracy
+accuracy(fc, valid.ridership) |>   
      select(MAE, RMSE, MAPE)
 
+# to get training accuracy: 
+accuracy(fit)
 
 #############
 # Table 3.6 (clever way of calculating values for 1-35 steps ahead)
@@ -44,4 +46,4 @@ fc <- ridership_tr |>
   model(naive_model = SNAIVE(Ridership)) |>
   forecast(h=1) 
 
-fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE ) 
+fc |> accuracy(ridership) |> select(MAE, RMSE, MAPE) 
