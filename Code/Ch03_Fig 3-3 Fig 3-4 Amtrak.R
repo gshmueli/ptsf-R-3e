@@ -27,7 +27,7 @@ fc <- fc |>
 # Plot 1: actuals and forecasts
 p.model <- autoplot(ridership, Ridership) +
   autolayer(fitted(ridership.lm), .fitted, color = "blue", size = 1.25) + 
-  autolayer(fc, .mean, level = NULL, linetype = "dashed", color = "blue", size = 1.25) +
+  autolayer(fc, .mean, linetype = "dashed", color = "blue", size = 1.25) +
   scale_x_yearmonth(date_breaks = "2 years", date_labels = "%Y") +
   labs(title = "Actual and forecasted ridership", y = "Ridership") +
   geom_vline(xintercept = as.numeric(as.Date(yearmonth("2001-April"))), linetype = "solid", color = "grey55", size = 0.6) +
