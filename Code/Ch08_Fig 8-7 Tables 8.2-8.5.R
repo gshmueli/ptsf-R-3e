@@ -88,7 +88,7 @@ lstm_model |> fit(
 )
 
 # Step 4: Forecasting one month ahead with sliding window 
-window <- as.numeric(train$Normalized_Ridership[(nTrain-12):nTrain])
+window <- as.numeric(train$Normalized_Ridership[(nTrain-11):nTrain])
 forecast <- numeric(nValid)
 
 for (i in 1:nValid) {
