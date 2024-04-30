@@ -86,10 +86,9 @@ df.errors <- left_join(df.errors , df.errors.rollrd)
 df.errors.all <- bind_rows(df.errors.train, df.errors)
 
 p.errors <- df.errors.all |>
-  autoplot(naive.error, size=0.8, color = "blue") +
-  geom_line(aes(Month, one.month.ahead.error), df.errors.all,  size=0.8, color = "coral1") +
-  geom_line(aes(Month, naive_errors), df.errors, linetype = "dashed", size=0.8, color = "blue") +
-  geom_line(aes(Month, rolled_errors), df.errors, linetype = "dashed", size=0.8, color = "coral1") +
+  autoplot(one.month.ahead.error, size = 0.8, color = "coral1") +
+  geom_line(aes(Month, naive_errors), df.errors, linetype = "dashed", size = 0.8, color = "blue") +
+  geom_line(aes(Month, rolled_errors), df.errors, linetype = "dashed", size = 0.8, color = "coral1") +
   labs(title = "Errors", x = "Time", y = "Error") + 
   geom_vline(xintercept= as.numeric(as.Date(yearmonth("2001-April"))), linetype = "solid", color = "grey55", size = 0.6) +
   geom_segment(aes(x = yearmonth("2001-May"), y = 400, 
